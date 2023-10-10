@@ -1,0 +1,152 @@
+﻿@using System.Globalization;
+@model IEnumerable<MvcMovie.Models.Movie>
+
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<form asp-cotroller="Movies" asp-action="Index" method="get">
+    <p>
+        Title: <input type="text" name="searchString" />
+        <input type="submit" value="filter" />
+    </p>
+</form>
+
+
+
+
+
+<table class="table" id="tbllist">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReleaseDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Genre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rating)
+            </th>
+            <th>
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @*     @foreach (var item in Model)
+        {
+        <tr>
+        <td>
+        @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+        @Html.DisplayFor(modelItem => item.ReleaseDate)
+        </td>
+        <td>
+        @Html.DisplayFor(modelItem => item.Genre)
+        </td>
+        <td>
+        @{
+        var price = item.Price;
+        var priceDisplayString = price.ToString("##.##") + " EUR";
+        @Html.DisplayFor(modelItem => priceDisplayString, "Price")
+        }
+        </td>
+        <td>
+        @Html.DisplayFor(modelItem => item.Rating)
+        </td>
+
+        <td>
+        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+        </td>
+        </tr>
+        } *@
+    </tbody>
+</table>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>
+<style type="text/css">
+    #tbllist_filter {
+        margin-bottom: 1%;
+    }
+</style>
+
+<script type="text/javascript">
+    var js = jQuery.noConflict(true);
+    js(document).ready(function () {
+        //js('#tbllist').DataTable({
+
+        //});
+        LoadListing();
+    });
+
+    function Edit(element) {
+        var id = $(element).closest('tr').find('input[type=hidden]').val();
+        window.location.href = "/movies/Edit?id=" + id;
+    }
+
+    function Remove(element) {
+        var id = $(element).closest('tr').find('input[type=hidden]').val();
+        if (confirm("do you want to remove?")) {
+            $.ajax({
+                type: "POST",
+                url: "/Movies/Delete/" + id,
+                success: function () {
+
+                    alert('Removed successfully.');
+                   
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                },
+                failure: function (err) {
+
+                }
+            });
+        }
+        //window.location.href = "/employee/Edit?code="+code;
+    }
+    function LoadListing() {
+        var movieData = [];
+        $.ajax({
+            type: "GET",
+            url: "/Movies/GetAll",
+            async: false,
+            success: function (data) {
+                $.each(data, function (key, value) {
+                    var editbtn = "<a onclick='Edit(this)' class='btn btn-primary'>Edit</a>";
+                    var removebtn = "<a onclick='Remove(this)' class='btn btn-danger'>Remove</a>";
+                    var hdn = "<input type='hidden' value=" + value.id + " />";
+                    var action = editbtn + " | " + removebtn + hdn;
+                    movieData.push([value.title, value.releaseDate, value.genre, value.price, value.rating, action])
+                })
+            },
+            failure: function (err) {
+
+            }
+        });
+        js('#tbllist').DataTable({
+            data: movieData
+        });
+    }
+
+</script>

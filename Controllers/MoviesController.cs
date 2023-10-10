@@ -54,6 +54,46 @@ namespace MvcMovie.Controllers
             return View(await movies.ToListAsync());
         }
 
+
+        public async Task<IActionResult> DataTable()
+        {
+            return View();
+        }
+
+
+        public async Task<IActionResult> GetAll(string movieGenre, string searchString)
+        {
+
+            // using LINQ to get list of genres
+
+            IQueryable<string> genreQuery = from m in _context.Movie
+
+                                            orderby m.Genre
+                                            select m.Genre;
+
+
+            var movies = from m in _context.Movie
+                         select m;
+
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                movies = movies.Where(s => s.Title!.Contains(searchString));
+
+            }
+
+
+            if (!String.IsNullOrEmpty(movieGenre))
+            {
+                movies = movies.Where(x => x.Genre == movieGenre);
+
+            }
+
+            var result = await movies.ToListAsync();
+           
+            return Json(result);
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Movie == null)
@@ -154,7 +194,7 @@ namespace MvcMovie.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+     // [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Movie == null)
