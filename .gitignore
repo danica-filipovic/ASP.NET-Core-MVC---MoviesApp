@@ -4,3 +4,6 @@
 
 /.vs/MvcMovies/FileContentIndex
 /obj/Debug/net6.0
+/.vs
+/bin/Debug/net6.0
+/obj
