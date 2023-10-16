@@ -18,16 +18,7 @@ namespace MvcMovie.Controllers
         public async Task<IActionResult> Index(string movieGenre, string searchString)
         {
 
-            // using LINQ to get list of genres
-
-            IQueryable<string> genreQuery = from m in _context.Movie
-
-                                            orderby m.Genre
-                                            select m.Genre;
-
-
-            var movies = from m in _context.Movie
-                         select m;
+            var movies = _context.Movie.AsQueryable();
 
 
             if (!String.IsNullOrEmpty(searchString))
@@ -44,14 +35,7 @@ namespace MvcMovie.Controllers
             }
 
 
-            var movieGenreVM = new MovieGenreViewModel
-            {
-                Genres = new SelectList(await genreQuery.Distinct().ToListAsync()),
-                Movies = await movies.ToListAsync()
-            };
-
-
-            return View(await movies.ToListAsync());
+            return View(movies.ToList());
         }
 
 
@@ -63,17 +47,7 @@ namespace MvcMovie.Controllers
 
         public async Task<IActionResult> GetAll(string movieGenre, string searchString)
         {
-
-            // using LINQ to get list of genres
-
-            IQueryable<string> genreQuery = from m in _context.Movie
-
-                                            orderby m.Genre
-                                            select m.Genre;
-
-
-            var movies = from m in _context.Movie
-                         select m;
+            var movies = _context.Movie.AsQueryable();
 
 
             if (!String.IsNullOrEmpty(searchString))
@@ -89,7 +63,8 @@ namespace MvcMovie.Controllers
 
             }
 
-            var result = await movies.ToListAsync();
+
+            var result = movies.ToList();
            
             return Json(result);
         }
@@ -129,14 +104,14 @@ namespace MvcMovie.Controllers
             return View(movie);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null || _context.Movie == null)
+            if (id == 0)
             {
                 return NotFound();
             }
 
-            var movie = await _context.Movie.FindAsync(id);
+            var movie = _context.Movie.Find(id);
             if (movie == null)
             {
                 return NotFound();
@@ -158,9 +133,9 @@ namespace MvcMovie.Controllers
                 try
                 {
                     _context.Update(movie);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
                     if (!MovieExists(movie.Id))
                     {
@@ -176,15 +151,15 @@ namespace MvcMovie.Controllers
             return View(movie);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null || _context.Movie == null)
+            if (id == 0)
             {
                 return NotFound();
             }
 
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var movie = _context.Movie
+                .FirstOrDefault(m => m.Id == id);
             if (movie == null)
             {
                 return NotFound();
@@ -194,20 +169,20 @@ namespace MvcMovie.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-     // [ValidateAntiForgeryToken]
+     // [ValidateAntiForgeryToken] //this is commented out so that delete works from the DataTable view
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Movie == null)
             {
                 return Problem("Entity set 'MvcMovieContext.Movie'  is null.");
             }
-            var movie = await _context.Movie.FindAsync(id);
+            var movie =  _context.Movie.Find(id);
             if (movie != null)
             {
                 _context.Movie.Remove(movie);
             }
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
 
