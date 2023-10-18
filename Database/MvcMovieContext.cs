@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 
-namespace MvcMovie.Data
+namespace MvcMovie.Database
 {
     public class MvcMovieContext : DbContext
     {
@@ -10,6 +10,6 @@ namespace MvcMovie.Data
         {
         }
 
-        public DbSet<MvcMovie.Models.Movie> Movie { get; set; } = default!;
+        public DbSet<Models.Movie> Movie { get; set; } = default!;
     }
 }

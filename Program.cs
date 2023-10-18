@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MvcMovie.Data;
+using MvcMovie.Database;
 using MvcMovie.Models;
 
 
